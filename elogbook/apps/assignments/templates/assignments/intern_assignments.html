@@ -1,0 +1,206 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Assignments</h2>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Assignments List</h5>
+                </div>
+                <div class="card-body">
+                    {% if assignments %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                                <th>Grade</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in assignments %}
+                            <tr>
+                                <td>
+                                    <strong>{{ assignment.title }}</strong>
+                                    {% if assignment.submission.supervisor_feedback %}
+                                    <br><small class="text-muted">
+                                        <i class="bi bi-chat-text me-1"></i>Has feedback
+                                    </small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ assignment.description|truncatechars:50 }}</td>
+                                <td>{{ assignment.deadline|date:"F d, Y" }}</td>
+                                <td>
+                                    {% if assignment.status == 'approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                    {% elif assignment.status == 'rejected' %}
+                                    <span class="badge bg-danger">Needs Revision</span>
+                                    {% elif assignment.status == 'submitted' %}
+                                    <span class="badge bg-info">Under Review</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">Assigned</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assignment.submission.grade %}
+                                    <span class="badge bg-primary">{{ assignment.submission.grade }}</span>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if assignment.assignment_file %}
+                                    <a href="{% url 'assignments:download_assignment_file' assignment.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-download me-1"></i>Download
+                                    </a>
+                                    {% endif %}
+                                    {% if assignment.status == 'assigned' or assignment.status == 'rejected' %}
+                                    <a href="{% url 'assignments:submit_assignment' assignment.id %}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-upload me-1"></i>Submit
+                                    </a>
+                                    {% elif assignment.status == 'submitted' %}
+                                    <span class="text-muted small">Awaiting Review</span>
+                                    {% elif assignment.status == 'approved' %}
+                                    <span class="text-success small"><i class="bi bi-check-circle me-1"></i>Complete</span>
+                                    {% endif %}
+                                    
+                                    {% if assignment.submission.supervisor_feedback %}
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ assignment.id }}">
+                                        <i class="bi bi-eye me-1"></i>View Feedback
+                                    </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p>No assignments found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Assignment Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Total Assignments: <span class="badge bg-primary">{{ assignments|length }}</span></h6>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Pending: <span class="badge bg-warning">{{ assignments|dictsort:"status"|dictsortreversed:"status"|length }}</span></h6>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Submitted: <span class="badge bg-info">{{ assignments|dictsort:"status"|length }}</span></h6>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Approved: <span class="badge bg-success">0</span></h6>
+                    </div>
+                    <hr>
+                    <div class="alert alert-info">
+                        <i class="bi bi-bell me-2"></i>
+                        <strong>New Assignment Results:</strong>
+                        <p class="mb-0 small">Check your <a href="{% url 'notifications:chat' %}" class="alert-link">Messages</a> for assignment feedback and grades from your supervisor.</p>
+                    </div>
+                    <p class="text-muted small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Assignments are created by your supervisor. Submit your work files using the "Submit" button.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modals -->
+{% for assignment in assignments %}
+{% if assignment.submission.supervisor_feedback %}
+<div class="modal fade" id="feedbackModal{{ assignment.id }}" tabindex="-1" aria-labelledby="feedbackModalLabel{{ assignment.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel{{ assignment.id }}">
+                    <i class="bi bi-chat-text me-2"></i>Supervisor Feedback: {{ assignment.title }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Assignment Status:</strong>
+                        {% if assignment.status == 'approved' %}
+                        <span class="badge bg-success ms-1">Approved</span>
+                        {% elif assignment.status == 'rejected' %}
+                        <span class="badge bg-danger ms-1">Needs Revision</span>
+                        {% else %}
+                        <span class="badge bg-info ms-1">{{ assignment.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Grade:</strong>
+                        {% if assignment.submission.grade %}
+                        <span class="badge bg-primary ms-1">{{ assignment.submission.grade }}</span>
+                        {% else %}
+                        <span class="text-muted ms-1">Not graded yet</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if assignment.submission.reviewed_at %}
+                <div class="mb-3">
+                    <strong>Reviewed on:</strong> {{ assignment.submission.reviewed_at|date:"F d, Y g:i A" }}
+                </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <strong>Supervisor Feedback:</strong>
+                    <div class="bg-light p-3 rounded mt-2">
+                        {{ assignment.submission.supervisor_feedback|linebreaks }}
+                    </div>
+                </div>
+                
+                {% if assignment.status == 'rejected' %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Action Required:</strong> Your assignment needs revision. Please review the feedback above and resubmit your work.
+                </div>
+                {% elif assignment.status == 'approved' %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Congratulations!</strong> Your assignment has been approved.
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {% if assignment.status == 'rejected' %}
+                <a href="{% url 'assignments:submit_assignment' assignment.id %}" class="btn btn-success">
+                    <i class="bi bi-upload me-1"></i>Resubmit Assignment
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}

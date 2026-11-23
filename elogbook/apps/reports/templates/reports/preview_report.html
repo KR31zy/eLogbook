@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Preview Report{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'reports/css/preview.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Preview Report</h2>
+                <div class="btn-group">
+                    <a href="{% url 'reports:edit_report' report.id %}" class="btn btn-secondary">Edit Report</a>
+                    <a href="{% url 'reports:export_pdf' report.id %}" class="btn btn-primary">Export as PDF</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-preview">
+    <!-- Cover Page -->
+    {% include 'reports/sections/cover.html' %}
+
+    <!-- Table of Contents -->
+    {% include 'reports/sections/table_of_contents.html' %}
+
+    <!-- Introduction -->
+    {% include 'reports/sections/introduction.html' with is_editing=False %}
+
+    <!-- Logbook Entries -->
+    {% include 'reports/sections/logbook_entries.html' %}
+
+    <!-- Conclusion -->
+    {% include 'reports/sections/conclusion.html' with is_editing=False %}
+
+    <!-- Signature Section -->
+    {% include 'reports/sections/signature.html' %}
+</div>
+
+<style>
+    .preview-report {
+        max-width: 210mm;
+        margin: 0 auto;
+        padding: 20px;
+        background: white;
+    }
+
+    @media print {
+        .preview-report {
+            max-width: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
+        body {
+            background: white;
+        }
+
+        .card {
+            border: none;
+            box-shadow: none;
+        }
+
+        .card-header {
+            display: none;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+    }
+</style>
+{% endblock %}

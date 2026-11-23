@@ -1,0 +1,65 @@
+{% extends 'supervision/base.html' %}
+{% block title %}Logbooks - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'supervision:dashboard' %}">Supervisor</a></li>
+<li class="breadcrumb-item active" aria-current="page">Logbooks</li>
+{% endblock %}
+
+{% block page_title %}Logbooks{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-3">
+        <form method="get" class="d-flex gap-2">
+            <select name="status" class="form-select" style="max-width: 240px;" onchange="this.form.submit()">
+                {% for s in status_choices %}
+                    <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>{{ s|capfirst }}</option>
+                {% endfor %}
+            </select>
+            <noscript><button class="btn btn-primary">Filter</button></noscript>
+        </form>
+    </div>
+
+    <div class="col-12 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Intern</th>
+                            <th>Template</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for lb in logbooks %}
+                            <tr>
+                                <td>{{ lb.student.get_full_name|default:lb.student.username }}</td>
+                                <td>{{ lb.template.name }}</td>
+                                <td>
+                                    <span class="badge bg-{% if lb.status == 'approved' %}success{% elif lb.status == 'submitted' %}warning{% elif lb.status == 'draft' %}secondary{% else %}info{% endif %}">
+                                        {{ lb.status|title }}
+                                    </span>
+                                </td>
+                                <td>{{ lb.submitted_at|date:"M d, Y H:i" }}</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-primary" href="{% url 'supervision:logbooks-review' lb.pk %}">
+                                        <i class="bi bi-eye me-1"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-muted">No logbooks.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

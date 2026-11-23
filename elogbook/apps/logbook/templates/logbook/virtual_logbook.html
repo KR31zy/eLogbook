@@ -1,0 +1,183 @@
+{% extends 'accounts/base.html' %}
+{% block title %}My Virtual Logbook - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">Virtual Logbook</li>
+{% endblock %}
+
+{% block page_title %}My Virtual Logbook{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Virtual Logbook Progress -->
+    <div class="col-lg-8">
+        <div class="card card-modern border-0 mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-journal-bookmark-fill me-2"></i>
+                    Logbook Progress
+                </h5>
+                <span class="badge bg-primary">{{ total_weeks }} Week{{ total_weeks|pluralize }} Completed</span>
+            </div>
+            <div class="card-body">
+                {% if weekly_entries %}
+                    <div class="timeline">
+                        {% for entry in weekly_entries %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker {% if entry.is_approved %}bg-success{% elif entry.is_rejected %}bg-warning{% else %}bg-secondary{% endif %}"></div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">
+                                        Week {{ entry.week_number }}
+                                        {% if entry.is_approved %}
+                                            <span class="badge bg-success ms-2">Approved</span>
+                                        {% elif entry.is_rejected %}
+                                            <span class="badge bg-warning ms-2">Changes Requested</span>
+                                        {% endif %}
+                                    </h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        {% if entry.is_approved %}{{ entry.approved_at|date:"M d, Y" }}{% elif entry.is_rejected %}{{ entry.rejected_at|date:"M d, Y" }}{% endif %}
+                                    </small>
+                                </div>
+                                <p class="mb-2 text-muted">
+                                    <strong>Template:</strong> {{ entry.student_logbook.template.name }}
+                                </p>
+                                {% if entry.approved_by %}
+                                <p class="mb-2 text-muted">
+                                    <strong>Approved by:</strong> {{ entry.approved_by.get_full_name }}
+                                </p>
+                                {% elif entry.rejected_by %}
+                                <p class="mb-2 text-muted">
+                                    <strong>Reviewed by:</strong> {{ entry.rejected_by.get_full_name }}
+                                </p>
+                                {% endif %}
+                                {% if entry.supervisor_feedback %}
+                                <div class="alert alert-info">
+                                    <strong>Supervisor Feedback:</strong>
+                                    <p class="mb-0">{{ entry.supervisor_feedback }}</p>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Download Buttons -->
+                                <div class="d-flex gap-2 mt-3">
+                                    {% if entry.is_approved %}
+                                        <!-- Approved entries: PDF download only -->
+                                        <a href="{% url 'logbook:download_weekly_pdf' entry.id %}" 
+                                           class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                                        </a>
+                                    {% elif entry.is_rejected %}
+                                        <!-- Rejected entries: Word download for editing -->
+                                        {% if entry.student_logbook.word_file %}
+                                        <a href="{% url 'logbook:download_weekly_word' entry.id %}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-file-earmark-word me-1"></i>Download Word (Edit)
+                                        </a>
+                                        {% endif %}
+                                        <!-- Re-submit button -->
+                                        <a href="{% url 'logbook:resubmit_logbook' entry.student_logbook.id %}" 
+                                           class="btn btn-outline-success btn-sm">
+                                            <i class="bi bi-arrow-clockwise me-1"></i>Re-submit
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-journal-x display-1 text-muted mb-3"></i>
+                        <h5 class="text-muted">No Approved Logbook Entries Yet</h5>
+                        <p class="text-muted">
+                            Submit your logbook entries for supervisor approval to see them appear here.
+                        </p>
+                        <a href="{% url 'logbook:template_list' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-1"></i>Start Your First Entry
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card card-modern border-0">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning me-2"></i>
+                    Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'logbook:template_list' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-circle me-1"></i>New Logbook Entry
+                    </a>
+                    <a href="{% url 'reports:generate_report' %}?format=pdf" class="btn btn-success">
+                        <i class="bi bi-file-earmark-pdf me-1"></i> Generate Final Report (PDF)
+                    </a>
+                    <a href="{% url 'reports:generate_report' %}?format=docx" class="btn btn-outline-success">
+                        <i class="bi bi-file-earmark-word me-1"></i> Generate Final Report (DOCX)
+                    </a>
+                    <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-1"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px #e9ecef;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+</style>
+
+{% endblock %}

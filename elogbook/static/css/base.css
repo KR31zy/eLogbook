@@ -1,0 +1,51 @@
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: -1rem;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.timeline-content {
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: -0.6rem;
+    top: 20px;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+/* Progress bar enhancements */
+.progress {
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* Table enhancements */
+.table-hover tbody tr:hover {
+    background-color: var(--light-blue);
+}

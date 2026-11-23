@@ -1,0 +1,225 @@
+{% extends base_template %}
+{% block title %}{% if mode == 'inbox' %}Inbox{% else %}Chat - {{ other_user.get_username }}{% endif %}{% endblock %}
+{% block content %}
+  <style>
+    .chat-container { max-width: 920px; margin: 0 auto; height: calc(100vh - 140px); display: flex; flex-direction: column; }
+    .chat-header { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; background: var(--card-bg, #fff); position: sticky; top:0; z-index:2;}
+    .chat-body { flex: 1 1 auto; padding: 1rem; overflow-y: auto; background: var(--surface, #f7f7f8); }
+    .chat-footer { padding: 0.75rem; border-top: 1px solid #e5e5e5; background: var(--card-bg, #fff); }
+    .msg { max-width: 75%; padding: .5rem .75rem; border-radius: 1rem; margin-bottom: .5rem; display: inline-block; word-wrap: break-word; }
+    .msg.me { background: #0d6efd; color: #fff; border-bottom-right-radius: .25rem; }
+    .msg.them { background: #e9ecef; color: #212529; border-bottom-left-radius: .25rem; }
+    .time { display: block; font-size: .75rem; opacity: .7; margin-top: .15rem; }
+    .bubble { display: flex; }
+    .bubble.me { justify-content: flex-end; }
+    .bubble.them { justify-content: flex-start; }
+    .typing { font-size: .85rem; color: var(--muted-color, #6c757d); }
+  </style>
+
+  <div class="chat-container">
+
+    <div class="chat-header d-flex align-items-center gap-2">
+      {% if mode == "inbox" %}
+        <h5 class="m-0">Inbox</h5>
+        {% if total_unread > 0 %}
+          <span class="badge bg-danger">{{ total_unread }} unread</span>
+        {% endif %}
+      {% else %}
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'notifications:chat' %}">← Back to Inbox</a>
+        <h5 class="m-0">Chat with {{ other_user.get_username }}</h5>
+        <span id="typingIndicator" class="ms-2 typing" style="display:none;">typing…</span>
+      {% endif %}
+    </div>
+
+    <div id="chatBody" class="chat-body">
+      {% if mode == "inbox" %}
+        <!-- INBOX VIEW -->
+        {% if conversations %}
+          <div class="list-group">
+            {% for conv in conversations %}
+              <a href="{% url 'notifications:chat' conv.user.id %}" 
+                 class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">
+    {{ conv.user.get_full_name|default:conv.user.username }}
+    {% with profile=conv.user.supervisor_profile %}
+        {% if profile %}
+            <span class="badge bg-primary ms-2">Supervisor</span>
+        {% endif %}
+    {% endwith %}
+</h6>
+                  
+                  {% if conv.last_message %}
+                    <p class="mb-1 text-muted small">
+                      {{ conv.last_message.content|truncatewords:10 }}
+                    </p>
+                    <small class="text-muted">
+                      {{ conv.last_message.timestamp|timesince }} ago
+                    </small>
+                  {% else %}
+                    <p class="mb-1 text-muted small">No messages yet</p>
+                  {% endif %}
+                </div>
+                
+                {% if conv.unread_count > 0 %}
+                  <span class="badge bg-danger rounded-pill">{{ conv.unread_count }}</span>
+                {% endif %}
+              </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center text-muted mt-4">
+            <i class="bi bi-chat display-4"></i>
+            <p class="mt-2">No conversations yet</p>
+          </div>
+        {% endif %}
+      
+      {% else %}
+        <!-- DIRECT CHAT VIEW -->
+        {% for m in messages %}
+          {% if m.sender_id == request.user.id %}
+            <div class="bubble me">
+              <div class="msg me">
+                {{ m.content|linebreaksbr }}
+                <span class="time">{{ m.timestamp|date:"M d, H:i" }}</span>
+              </div>
+            </div>
+          {% else %}
+            <div class="bubble them">
+              <div class="msg them">
+                <strong>{{ m.sender.username }}</strong><br>
+                {{ m.content|linebreaksbr }}
+                <span class="time">{{ m.timestamp|date:"M d, H:i" }}</span>
+              </div>
+            </div>
+          {% endif %}
+        {% empty %}
+          <div class="text-center text-muted mt-4">No messages yet. Say hi 👋</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    {% if mode == "direct" %}
+      <div class="chat-footer">
+        <form id="chatForm" class="d-flex gap-2" onsubmit="return false;">
+          {% csrf_token %}
+          <input id="messageInput" type="text" class="form-control" placeholder="Type a message…" autocomplete="off" required>
+          <button id="sendBtn" class="btn btn-primary" type="button">Send</button>
+          <button id="sendHttpBtn" class="btn btn-outline-secondary" type="button" title="Send without realtime">Send (fallback)</button>
+        </form>
+      </div>
+    {% endif %}
+
+  </div>
+
+  {% if mode == "direct" %}
+  <script>
+    (function () {
+      const otherUserId = "{{ other_user.id }}";
+      const chatBody = document.getElementById("chatBody");
+      const input = document.getElementById("messageInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const sendHttpBtn = document.getElementById("sendHttpBtn");
+      const typingEl = document.getElementById("typingIndicator");
+      const csrfToken = document.querySelector("input[name='csrfmiddlewaretoken']").value;
+
+      function scrollToBottom() { chatBody.scrollTop = chatBody.scrollHeight; }
+      scrollToBottom();
+
+      // WebSocket setup
+      const loc = window.location;
+      const wsScheme = loc.protocol === "https:" ? "wss" : "ws";
+      const socketUrl = `${wsScheme}://${loc.host}/ws/chat/${otherUserId}/`;
+      let chatSocket;
+      try { chatSocket = new WebSocket(socketUrl); } catch (e) { chatSocket = null; }
+
+      let typingTimeout;
+      function showTyping() { typingEl && (typingEl.style.display = 'inline'); }
+      function hideTyping() { typingEl && (typingEl.style.display = 'none'); }
+
+      if (chatSocket) {
+        chatSocket.onmessage = function(e) {
+          const data = JSON.parse(e.data);
+          if (data.type === 'typing') { showTyping(); clearTimeout(typingTimeout); typingTimeout = setTimeout(hideTyping, 1500); return; }
+          if (data.type === 'read') { /* could display read receipts badge */ return; }
+
+          const isMe = String(data.sender_id) === "{{ request.user.id }}";
+          const wrap = document.createElement("div");
+          wrap.className = "bubble " + (isMe ? "me" : "them");
+          wrap.innerHTML = `
+            <div class="msg ${isMe ? "me" : "them"}">
+              ${!isMe ? `<strong>${data.sender_username}</strong><br>` : ""}
+              ${escapeHtml(data.message).replaceAll("\n","<br>")}
+              <span class="time">${formatTime(data.timestamp)}</span>
+            </div>
+          `;
+          chatBody.appendChild(wrap);
+          scrollToBottom();
+        };
+      }
+
+      sendBtn.addEventListener("click", sendMessage);
+      input.addEventListener("keydown", function(e){
+        if (chatSocket && chatSocket.readyState === 1) {
+          chatSocket.send(JSON.stringify({ typing: true }));
+        }
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      // Mark read on visibility change
+      document.addEventListener('visibilitychange', function(){
+        if (!document.hidden && chatSocket && chatSocket.readyState === 1) {
+          chatSocket.send(JSON.stringify({ read: true }));
+        }
+      });
+
+      function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+        if (chatSocket && chatSocket.readyState === 1) {
+          chatSocket.send(JSON.stringify({ message: text }));
+        } else {
+          sendHttpFallback(text);
+        }
+        input.value = "";
+        input.focus();
+      }
+
+      sendHttpBtn.addEventListener('click', function(){
+        const text = input.value.trim();
+        if (!text) return;
+        sendHttpFallback(text);
+        input.value = '';
+      });
+
+      function sendHttpFallback(text) {
+        fetch(`{% url 'notifications:send_message' other_user.id %}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrfToken },
+          body: new URLSearchParams({ content: text })
+        }).then(r=>r.json()).then(data => {
+          if (data.ok) {
+            const wrap = document.createElement('div');
+            wrap.className = 'bubble me';
+            wrap.innerHTML = `<div class="msg me">${escapeHtml(text)}<span class="time">${formatTime(data.timestamp)}</span></div>`;
+            chatBody.appendChild(wrap);
+            scrollToBottom();
+          }
+        });
+      }
+
+      function escapeHtml(str) {
+        return str.replace(/[&<>"']/g, function(m) {
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}[m]);
+        });
+      }
+
+      function formatTime(iso) { try { const d=new Date(iso); return d.toLocaleString(); } catch { return ''; } }
+    })();
+  </script>
+  {% endif %}
+{% endblock %}

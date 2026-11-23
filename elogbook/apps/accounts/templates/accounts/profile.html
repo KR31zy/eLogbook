@@ -1,0 +1,101 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Profile - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">Profile</li>
+{% endblock %}
+
+{% block page_title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-modern border-0">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile picture" class="rounded-circle" width="120" height="120">
+                    {% else %}
+                        <i class="bi bi-person-circle" style="font-size:96px;color:#6c757d"></i>
+                    {% endif %}
+                    <h6 class="mt-2">{{ user.get_full_name|default:user.username }}</h6>
+                    <p class="text-muted">{{ user.role|default:'User' }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Full Name</label>
+                    <p class="form-control-static">{{ user.get_full_name }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Email</label>
+                    <p class="form-control-static">{{ user.email }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Phone</label>
+                    <p class="form-control-static">{{ user.phone_number|default:'Not provided' }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Username</label>
+                    <p class="form-control-static">{{ user.username }}</p>
+                </div>
+                {% if user.is_intern and user.intern_profile %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">University</label>
+                    <p class="form-control-static">{{ user.intern_profile.university }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Course</label>
+                    <p class="form-control-static">{{ user.intern_profile.course }}</p>
+                </div>
+                {% endif %}
+                {% if user.is_supervisor and user.supervisor_profile %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Department</label>
+                    <p class="form-control-static">{{ user.supervisor_profile.department.name }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card card-modern border-0">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">Account Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'accounts:profile' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                               value="{{ user.first_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                               value="{{ user.last_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ user.email }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+                
+                <hr class="my-4">
+                
+                <h6 class="mb-3">Change Password</h6>
+                <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-primary">
+                    Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

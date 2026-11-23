@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Re-submit Logbook - Week {{ week_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-arrow-clockwise me-2"></i>
+                        Re-submit Logbook - Week {{ week_number }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if logbook.supervisor_feedback %}
+                    <div class="alert alert-warning border-start border-warning border-3 mb-4">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-chat-quote me-2"></i>Supervisor Feedback
+                        </h6>
+                        <p class="mb-0">{{ logbook.supervisor_feedback }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="alert alert-info border-start border-info border-3 mb-4">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-info-circle me-2"></i>Instructions
+                        </h6>
+                        <ul class="mb-0">
+                            <li>Review the supervisor's feedback above</li>
+                            <li>Make the necessary changes to your logbook document</li>
+                            <li>Upload the revised document using the form below</li>
+                            <li>Your logbook will be re-submitted for supervisor review</li>
+                        </ul>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.template.id_for_label }}" class="form-label">
+                                    <i class="bi bi-file-earmark-text me-1"></i>Template
+                                </label>
+                                {{ form.template }}
+                                {% if form.template.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.template.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.week_number.id_for_label }}" class="form-label">
+                                    <i class="bi bi-calendar-week me-1"></i>Week Number
+                                </label>
+                                {{ form.week_number }}
+                                {% if form.week_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.week_number.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.word_file.id_for_label }}" class="form-label">
+                                <i class="bi bi-file-earmark-word me-1"></i>Upload Revised Word Document
+                            </label>
+                            {{ form.word_file }}
+                            {% if form.word_file.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.word_file.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Please upload your revised logbook document in Word format (.docx)
+                            </div>
+                        </div>
+
+                        {% if form.notes.field %}
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                <i class="bi bi-sticky me-1"></i>Additional Notes (Optional)
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.notes.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Add any notes about the changes you made
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle me-1"></i>Re-submit Logbook
+                            </button>
+                            <a href="{% url 'logbook:virtual_logbook' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Back to Virtual Logbook
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.alert {
+    border-radius: 0.5rem;
+}
+
+.card {
+    border-radius: 0.75rem;
+    border: none;
+}
+
+.card-header {
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+    border-bottom: 1px solid rgba(0,0,0,0.125);
+}
+</style>
+{% endblock %}

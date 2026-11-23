@@ -1,0 +1,89 @@
+<div class="table-of-contents">
+    <h2>Table of Contents</h2>
+    
+    <div class="toc-content">
+        <!-- Cover Page -->
+        <div class="toc-item" data-target="cover">
+            <span class="toc-title">Cover Page</span>
+            <span class="toc-page">1</span>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc-item" data-target="toc">
+            <span class="toc-title">Table of Contents</span>
+            <span class="toc-page">2</span>
+        </div>
+
+        <!-- Introduction -->
+        <div class="toc-item" data-target="introduction">
+            <span class="toc-title">Introduction</span>
+            <span class="toc-page">3</span>
+        </div>
+
+        <!-- Weekly Logbook Entries -->
+        <div class="toc-item" data-target="logbook-entries">
+            <span class="toc-title">Weekly Logbook Entries</span>
+            <span class="toc-page">4</span>
+        </div>
+
+        {% for entry in logbook_entries %}
+        <div class="toc-item sub-item" data-target="entry-{{ entry.id }}">
+            <span class="toc-title">Week {{ entry.week_number }}: {{ entry.title }}</span>
+            <span class="toc-page">{{ entry.page_number }}</span>
+        </div>
+        {% endfor %}
+
+        <!-- Conclusion -->
+        <div class="toc-item" data-target="conclusion">
+            <span class="toc-title">Conclusion</span>
+            <span class="toc-page">{{ conclusion_page }}</span>
+        </div>
+
+        <!-- Supervisor Comments -->
+        {% if supervisor_comments %}
+        <div class="toc-item" data-target="supervisor-comments">
+            <span class="toc-title">Supervisor Comments</span>
+            <span class="toc-page">{{ supervisor_comments_page }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Signatures -->
+        <div class="toc-item" data-target="signatures">
+            <span class="toc-title">Signatures</span>
+            <span class="toc-page">{{ signatures_page }}</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .toc-content {
+        margin-top: 30px;
+    }
+
+    .toc-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px 0;
+        padding: 5px 0;
+        border-bottom: 1px dotted #ccc;
+    }
+
+    .sub-item {
+        margin-left: 20px;
+        font-size: 0.9em;
+    }
+
+    .toc-title {
+        flex-grow: 1;
+    }
+
+    .toc-page {
+        margin-left: 20px;
+    }
+
+    @media print {
+        .table-of-contents {
+            page-break-after: always;
+        }
+    }
+</style>

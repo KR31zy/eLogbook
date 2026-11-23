@@ -1,0 +1,28 @@
+<div class="cover-page">
+    <div class="university-logo">
+        <!-- Add university logo if available -->
+    </div>
+
+    <h1>Internship Final Report</h1>
+
+    <div class="intern-details mt-5">
+        <h2>{{ intern.user.get_full_name }}</h2>
+        <p class="student-id">Student ID: {{ intern.student_id }}</p>
+    </div>
+
+    <div class="institution-details mt-4">
+        <h3>{{ university.name }}</h3>
+        <p>{{ university.department }}</p>
+    </div>
+
+    <div class="supervisor-details mt-4">
+        <p>Supervised by:</p>
+        <h3>{{ supervisor.user.get_full_name }}</h3>
+        <p>{{ supervisor.position }}</p>
+        <p>{{ supervisor.department }}</p>
+    </div>
+
+    <div class="date-details mt-5">
+        <p>{{ report.created_at|date:"F Y" }}</p>
+    </div>
+</div>

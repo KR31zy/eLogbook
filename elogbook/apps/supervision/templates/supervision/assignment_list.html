@@ -1,0 +1,60 @@
+{% extends 'supervision/base.html' %}
+{% block title %}Assignments - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'supervision:dashboard' %}">Supervisor</a></li>
+<li class="breadcrumb-item active" aria-current="page">Assignments</li>
+{% endblock %}
+
+{% block page_title %}Assignments{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-3 d-flex gap-2">
+        <a href="{% url 'supervision:assignments-new' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> New Assignment
+        </a>
+    </div>
+
+    <div class="col-12 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Intern</th>
+                            <th>Status</th>
+                            <th>Deadline</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for a in assignments %}
+                            <tr>
+                                <td>{{ a.title }}</td>
+                                <td>{{ a.intern.user.get_full_name|default:a.intern.user.username }}</td>
+                                <td>
+                                    <span class="badge bg-{% if a.status == 'completed' %}success{% elif a.status == 'submitted' %}warning{% elif a.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                        {{ a.status|title }}
+                                    </span>
+                                </td>
+                                <td>{{ a.deadline|date:"M d, Y" }}</td>
+                                <td class="text-end">
+                                    <a href="{% url 'supervision:assignments-review' a.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye me-1"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-muted">No assignments found.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

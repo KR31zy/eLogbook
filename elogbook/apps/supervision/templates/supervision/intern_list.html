@@ -1,0 +1,66 @@
+{% extends 'supervision/base_supervisor.html' %}
+
+{% block page_title %}My Interns{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'supervision:dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">My Interns</li>
+{% endblock %}
+
+{% block content %}
+<div class="card card-modern">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">My Interns ({{ total_interns }})</h5>
+    </div>
+    <div class="card-body">
+        {% if interns %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Registration Number</th>
+                        <th>Course</th>
+                        <th>University</th>
+                        <th>Year</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for intern in interns %}
+                    <tr>
+                        <td>
+                            <strong>{{ intern.user.get_full_name|default:intern.user.username }}</strong>
+                        </td>
+                        <td>{{ intern.registration_number }}</td>
+                        <td>{{ intern.course_name }}</td>
+                        <td>{{ intern.university.name|default:"N/A" }}</td>
+                        <td>Year {{ intern.year_of_study }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'notifications:chat' intern.user.id %}" class="btn btn-sm btn-primary" title="Message">
+                                    <i class="bi bi-chat"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-secondary" title="View Profile">
+                                    <i class="bi bi-person"></i>
+                                </a>
+                                <a href="#" class="btn btn-sm btn-outline-info" title="View Logs">
+                                    <i class="bi bi-journal-text"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-people display-1"></i>
+            <h5 class="mt-3">No interns assigned</h5>
+            <p>You don't have any interns assigned to you yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'reports/css/editor.css' %}">
+<link rel="stylesheet" href="{% static 'reports/css/preview.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>{{ report_title }}</h4>
+                    <div class="btn-group">
+                        {% if not is_preview %}
+                        <a href="{% url 'reports:preview_report' report.id %}" class="btn btn-secondary">
+                            <i class="fas fa-eye"></i> Preview
+                        </a>
+                        {% else %}
+                        <a href="{% url 'reports:edit_report' report.id %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button class="btn btn-secondary btn-print">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                        <a href="{% url 'reports:export_pdf' report.id %}" class="btn btn-success">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="report-content">
+                        {% block report_content %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="{% static 'reports/js/editor.js' %}"></script>
+<script src="{% static 'reports/js/preview.js' %}"></script>
+{% endblock %}

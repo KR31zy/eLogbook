@@ -1,0 +1,92 @@
+<div class="signature-section">
+    <h2>Signatures</h2>
+
+    <div class="row mt-5">
+        <!-- Intern's Signature -->
+        <div class="col-md-6">
+            <div class="signature-block">
+                <h4>Intern</h4>
+                <p>{{ intern.user.get_full_name }}</p>
+                <p>{{ intern.student_id }}</p>
+                <div class="signature-line mt-4 mb-2"></div>
+                <p class="text-muted">Date: {{ report.created_at|date:"d F Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Supervisor's Signature -->
+        <div class="col-md-6">
+            <div class="signature-block">
+                <h4>Supervisor</h4>
+                <p>{{ supervisor.user.get_full_name }}</p>
+                <p>{{ supervisor.position }}</p>
+                
+                {% if supervisor_signature %}
+                    <div class="signature-image mt-3">
+                        <img src="{{ supervisor_signature.url }}" alt="Supervisor's Signature">
+                    </div>
+                {% else %}
+                    {% if user.is_supervisor or user.is_admin %}
+                        <div class="signature-form mt-3">
+                            <form method="POST" action="{% url 'reports:add_signature' report.id %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="signature">Upload Signature</label>
+                                    <input type="file" class="form-control-file" id="signature" name="signature" accept="image/*" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-2">Add Signature</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="signature-line mt-4 mb-2"></div>
+                        <p class="text-muted">(Pending supervisor's signature)</p>
+                    {% endif %}
+                {% endif %}
+                
+                <p class="text-muted mt-2">Date: {% if supervisor_signature %}{{ supervisor_signature_date|date:"d F Y" }}{% else %}_____________{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .signature-section {
+        margin-top: 50px;
+        padding: 20px;
+    }
+
+    .signature-block {
+        text-align: center;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .signature-line {
+        width: 80%;
+        margin: 0 auto;
+        border-bottom: 1px solid #000;
+    }
+
+    .signature-image {
+        margin: 20px auto;
+        max-width: 300px;
+    }
+
+    .signature-image img {
+        width: 100%;
+        height: auto;
+    }
+
+    .signature-form {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    @media print {
+        .signature-form,
+        .btn {
+            display: none;
+        }
+    }
+</style>

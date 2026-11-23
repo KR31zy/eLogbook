@@ -1,0 +1,582 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Dashboard - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+
+    <!-- Button trigger modal -->
+    <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Launch demo modal
+</button> -->
+
+    <!-- Modal -->
+
+    <!-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignmentsSubmitForm" action="{% url 'accounts:dashboard' %}
+" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="assignmentFile" class="form-label">Upload Assignment</label>
+                            <input class="form-control" type="file" id="assignmentFile" name="assignment_file" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comments" class="form-label">Comments (optional)</label>
+                            <textarea class="form-control" id="comments" name="comments" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Assignment</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+ -->
+
+
+
+    <!-- Welcome Card -->
+    <div class="col-12 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="card-title mb-1">Welcome back, {{ user.username }}</h3>
+                        {% if user.intern_profile.university %}
+<p class="text-muted mb-0">
+    <i class="bi bi-building me-1"></i>{{ user.intern_profile.university.name }}
+    | <i class="bi bi-book me-1"></i>{{ user.intern_profile.course_name }}
+    | <i class="bi bi-calendar me-1"></i>Year {{ user.intern_profile.year_of_study }}
+</p>
+{% endif %}
+                    </div>
+                    <div class="text-muted">
+                        <i class="bi bi-calendar-event me-2"></i>{{ current_date }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- INTERN DASHBOARD -->
+<div class="row">
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title text-muted mb-0">Weeks Remaining</h6>
+                        <h3 class="fw-bold mb-0" id="weeks-remaining-value">{{ weeks_remaining }}</h3>
+                        <small class="text-muted">weeks to upload</small>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-calendar-week text-primary fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title text-muted mb-0">Completed Assignments</h6>
+                        <h3 class="fw-bold mb-0" id="completed-assignments-count">{{ completed_assignments_count }}</h3>
+                        <small class="text-muted" id="total-assignments-info">of {{ total_assignments_count }} total</small>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-file-earmark-check-fill text-success fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title text-muted mb-0">Pending Approval</h6>
+                        <h3 class="fw-bold mb-0" id="pending-approval-value">{{ pending_approval }}%</h3>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-clock-history text-warning fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title text-muted mb-0">Logbook Progress</h6>
+                        <h3 class="fw-bold mb-0" id="logbook-progress-value">{{ logbook_progress }}%</h3>
+                        <small class="text-muted" id="logbook-weeks-info">{{ completed_logbooks }}/{{ total_weeks }} weeks</small>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-journal-text text-info fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- My Progress & Assignments -->
+    <div class="col-lg-8 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">Progress Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h6>Logbook Progress</h6>
+                        <div class="progress mb-2" style="height: 20px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ logbook_progress }}%;" 
+                                 aria-valuenow="{{ logbook_progress }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        <small class="text-muted" id="logbook-progress-text">{{ logbook_progress }}% complete - {{ completed_logbooks }}/{{ total_weeks }} weeks uploaded</small>
+                    </div>
+                </div>
+                
+                <!-- Recent Logbook Entries -->
+                <h6 class="mt-4">Recent Logbook Entries</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Template</th>
+                                <th>Last Updated</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for logbook in recent_logbooks %}
+                            <tr>
+                                <td>{{ logbook.template.name }}</td>
+                                <td>{{ logbook.updated_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if logbook.status == 'approved' %}success{% elif logbook.status == 'submitted' %}warning{% elif logbook.status == 'draft' %}secondary{% else %}danger{% endif %}">
+                                        {{ logbook.status|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'logbook:edit_logbook' logbook.template.id %}" class="btn btn-sm btn-outline-primary">
+                                        {% if logbook.status == 'draft' %}Edit{% else %}View{% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No logbook entries yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'logbook:virtual_logbook' %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-journal-bookmark-fill me-1"></i>My Virtual Logbook
+                    </a>
+                </div>
+                
+                <!-- Recent Assignments -->
+                <h6 class="mt-4">Recent Assignments</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in internloged %}
+                            <tr>
+                                <td>{{ assignment.title }}</td>
+                                <td>{{ assignment.deadline|date:"M d, Y" }}</td>
+                                <td>
+                                    <span
+                                        class="badge bg-{% if assignment.status == 'completed' %}success{% elif assignment.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                        {{ assignment.status|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if assignment.status != 'completed' %}
+
+                                    <a href="{% url 'accounts:submitassignment' assignment.id %}" class="btn btn-sm btn-outline-primary">Submit</a>
+                                    {% else %}
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">View</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No assignments yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h6 class="mt-4">Recent Activities</h6>
+                <ul class="list-group list-group-flush">
+                    {% for activity in recent_activities %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi {{ activity.icon }} me-2"></i>
+                            <span>{{ activity.description }}</span>
+                        </div>
+                        <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">No recent activities</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supervisor Info & Quick Actions -->
+    <div class="col-lg-4 mb-4">
+        
+        <div class="card card-modern border-0 mb-4">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0">My Supervisor</h5>
+    </div>
+    <div class="card-body text-center">
+        <div class="mb-3">
+            <i class="bi bi-person-badge fs-1 text-primary"></i>
+        </div>
+        
+        {% if supervisor %}
+            
+            <h5 class="fw-bold">
+                {{ supervisor.user.get_full_name|default:supervisor.user.username }}
+            </h5>
+
+        
+            {% if supervisor.position %}
+                <p class="text-muted mb-1">{{ supervisor.position }}</p>
+            {% endif %}
+
+
+            <p class="text-muted mb-1">
+                {{ supervisor.department.name|default:"No department assigned" }}
+            </p>
+
+            
+            {% if supervisor.user.email %}
+                <p class="text-muted small">
+                    <i class="bi bi-envelope me-1"></i>{{ supervisor.user.email }}
+                </p>
+            {% endif %}
+            
+        
+            <div class="d-grid gap-2">
+                <!-- Chat Message Button -->
+                <a href="{% url 'notifications:chat' supervisor.user.id %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-chat-dots me-1"></i> Send Message
+                </a>
+                
+        
+                {% if supervisor.user.email %}
+                <a href="mailto:{{ supervisor.user.email }}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-envelope me-1"></i> Send Email
+                </a>
+                {% endif %}
+            </div>
+        {% else %}
+            <h5>Not assigned</h5>
+            <p class="text-muted">No supervisor assigned yet</p>
+        {% endif %}
+    </div>
+</div>
+
+        
+
+        <div class="card card-modern border-0 mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'logbook:template_list' %}" class="btn btn-outline-primary btn-modern">
+                        <i class="bi bi-journal-text me-2"></i>Access Logbook
+                    </a>
+                    <a href="{% url 'logbook:edit_logbook' template_id=1 %}" class="btn btn-outline-primary btn-modern">
+                        <i class="bi bi-journal-plus me-2"></i>New Log Entry
+                    </a>
+                    <a href="{% url 'assignments:intern_assignments' %}" class="btn btn-outline-primary btn-modern">
+                        <i class="bi bi-upload me-2"></i>Submit Assignment
+                    </a>
+                    <a href="{% url 'notifications:chat' %}" class="btn btn-outline-primary btn-modern">
+                        <i class="bi bi-chat-dots me-2"></i>Messages
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Logbook Status Summary -->
+        <div class="card card-modern border-0 mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">Logbook Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Completed:</span>
+                    <span class="fw-bold text-success">{{ completed_logbooks }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">In Progress:</span>
+                    <span class="fw-bold text-warning">{{ in_progress_logbooks }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Pending Review:</span>
+                    <span class="fw-bold text-info">{{ pending_logbooks }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Total Weeks:</span>
+                    <span class="fw-bold">{{ total_weeks }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help and Support -->
+        <div class="card card-modern border-0 mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0"><i class="bi bi-question-circle me-2"></i>Help & Support</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="fw-bold mb-2">Getting Started</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-1"><i class="bi bi-check-circle text-success me-2"></i>Upload weekly logbook entries</li>
+                        <li class="mb-1"><i class="bi bi-check-circle text-success me-2"></i>Submit assignments on time</li>
+                        <li class="mb-1"><i class="bi bi-check-circle text-success me-2"></i>Check messages from supervisor</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold mb-2">Quick Tips</h6>
+                    <div class="alert alert-info py-2 px-3 small">
+                        <i class="bi bi-lightbulb me-1"></i>
+                        Upload logbook entries weekly to stay on track. You need to complete all 8 weeks.
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold mb-2">Need Help?</h6>
+                    <div class="d-grid gap-2">
+                        {% if supervisor %}
+                        <a href="{% url 'notifications:chat' supervisor.user.id %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-chat-dots me-1"></i> Contact Supervisor
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'accounts:help' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-question-circle me-1"></i> Help & Support
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-clock me-1"></i>Support available Mon-Fri, 9AM-5PM
+                    </small>
+                </div>
+            </div>
+        </div>
+
+<!-- Help FAQ Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel"><i class="bi bi-question-circle me-2"></i>Frequently Asked Questions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                How do I upload weekly logbook entries?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Click on "Access Logbook" or "New Log Entry" in Quick Actions. Fill out the weekly template with your activities, learning outcomes, and reflections. Submit for supervisor review.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                What happens if I miss a week?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                You can still upload entries for previous weeks. However, it's important to maintain regular weekly submissions. Contact your supervisor if you need assistance catching up.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                How do I submit assignments?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Go to "Submit Assignment" in Quick Actions or navigate to the Assignments section. Upload your files, add any notes, and submit. You'll receive feedback from your supervisor.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                                How do I generate my final report?
+                            </button>
+                        </h2>
+                        <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Once you've completed all 8 weeks of logbook entries, click "Generate Report" in Quick Actions. The system will automatically compile your entries into a professional report.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq5">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5">
+                                Who can I contact for technical support?
+                            </button>
+                        </h2>
+                        <div id="collapse5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                For technical issues, contact your supervisor first. For urgent technical problems, reach out during support hours (Mon-Fri, 9AM-5PM) or check with your institution's IT department.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+        
+        <!-- Institution Info -->
+        {% if user.intern_profile.institution %}
+        <div class="card card-modern border-0">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">Institution Info</h5>
+            </div>
+            <div class="card-body">
+                <h6>{{ user.intern_profile.institution.name }}</h6>
+                <p class="text-muted small mb-1">
+                    <i class="bi bi-geo-alt me-1"></i>{{ user.intern_profile.institution.address }}
+                </p>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-book me-1"></i>{{ user.intern_profile.course }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Real-time Progress Update Script -->
+<script>
+function updateProgressIndicators() {
+    fetch('/accounts/dashboard-data/')
+        .then(response => response.json())
+        .then(data => {
+            // Update main progress cards
+            if (document.getElementById('logbook-progress-value')) {
+                document.getElementById('logbook-progress-value').textContent = data.logbook_progress + '%';
+            }
+            if (document.getElementById('logbook-weeks-info')) {
+                document.getElementById('logbook-weeks-info').textContent = data.completed_logbooks + '/' + data.total_weeks + ' weeks';
+            }
+            if (document.getElementById('completed-assignments-count')) {
+                document.getElementById('completed-assignments-count').textContent = data.completed_assignments_count;
+            }
+            if (document.getElementById('total-assignments-info')) {
+                document.getElementById('total-assignments-info').textContent = 'of ' + data.total_assignments_count + ' total';
+            }
+            if (document.getElementById('pending-approval-value')) {
+                document.getElementById('pending-approval-value').textContent = data.pending_approval + '%';
+            }
+            if (document.getElementById('weeks-remaining-value')) {
+                document.getElementById('weeks-remaining-value').textContent = data.weeks_remaining;
+            }
+            
+            // Update progress bars and text
+            if (document.getElementById('logbook-progress-text')) {
+                document.getElementById('logbook-progress-text').textContent = data.logbook_progress + '% complete - ' + data.completed_logbooks + '/' + data.total_weeks + ' weeks uploaded';
+            }
+            
+            // Update progress bars
+            const logbookProgressBar = document.querySelector('.progress-bar.bg-success');
+            if (logbookProgressBar) {
+                logbookProgressBar.style.width = data.logbook_progress + '%';
+                logbookProgressBar.setAttribute('aria-valuenow', data.logbook_progress);
+            }
+        })
+        .catch(error => {
+            console.log('Progress update failed:', error);
+        });
+}
+
+// Update progress every 30 seconds
+setInterval(updateProgressIndicators, 30000);
+
+// Update when page becomes visible (user switches back to tab)
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        updateProgressIndicators();
+    }
+});
+
+// Update when user interacts with the page
+document.addEventListener('click', function() {
+    setTimeout(updateProgressIndicators, 1000);
+});
+</script>
+
+{% endblock %}

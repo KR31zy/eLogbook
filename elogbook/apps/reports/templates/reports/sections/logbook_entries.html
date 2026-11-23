@@ -1,0 +1,144 @@
+<div class="logbook-entries-section">
+    <h2>Weekly Logbook Entries</h2>
+
+    {% for entry in logbook_entries %}
+    <div class="logbook-entry" id="entry-{{ entry.id }}">
+        <div class="entry-header">
+            <h3>Week {{ entry.week_number }}: {{ entry.title }}</h3>
+            <p class="date">{{ entry.start_date|date:"d F Y" }} - {{ entry.end_date|date:"d F Y" }}</p>
+        </div>
+
+        <div class="entry-content">
+            {{ entry.content|safe }}
+        </div>
+
+        {% if entry.attachments.exists %}
+        <div class="attachments mt-3">
+            <h5>Attachments</h5>
+            <ul class="list-unstyled">
+                {% for attachment in entry.attachments.all %}
+                <li>
+                    <i class="fas fa-paperclip"></i>
+                    <a href="{{ attachment.file.url }}" target="_blank">{{ attachment.file_name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if entry.supervisor_comments.exists %}
+        <div class="supervisor-comments mt-4">
+            <h5>Supervisor Comments</h5>
+            {% for comment in entry.supervisor_comments.all %}
+            <div class="supervisor-comment">
+                <div class="comment-header">
+                    <strong>{{ comment.supervisor.user.get_full_name }}</strong>
+                    <span class="text-muted">{{ comment.created_at|date:"d F Y" }}</span>
+                </div>
+                <div class="comment-content mt-2">
+                    {{ comment.content|safe }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        No approved logbook entries found.
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .logbook-entries-section {
+        margin-top: 30px;
+    }
+
+    .logbook-entry {
+        margin: 30px 0;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        page-break-inside: avoid;
+    }
+
+    .entry-header {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+
+    .entry-header h3 {
+        margin-bottom: 5px;
+        color: #495057;
+    }
+
+    .date {
+        color: #6c757d;
+        font-style: italic;
+        margin-bottom: 0;
+    }
+
+    .entry-content {
+        line-height: 1.6;
+    }
+
+    .attachments {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+    }
+
+    .attachments h5 {
+        color: #495057;
+        margin-bottom: 10px;
+    }
+
+    .attachments a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .attachments a:hover {
+        text-decoration: underline;
+    }
+
+    .supervisor-comments h5 {
+        color: #495057;
+        margin-bottom: 15px;
+    }
+
+    .supervisor-comment {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .comment-content {
+        color: #212529;
+    }
+
+    @media print {
+        .logbook-entry {
+            border: none;
+            padding: 0;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+
+        .attachments,
+        .supervisor-comment {
+            background-color: transparent;
+            border: 1px solid #e9ecef;
+        }
+    }
+</style>

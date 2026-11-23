@@ -1,0 +1,417 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}{{ title }} - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{% url 'accounts:user_management_dashboard' %}">User Management</a></li>
+<li class="breadcrumb-item"><a href="{% url 'accounts:intern_list' %}">Interns</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">{{ title }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- User Information Section -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">
+                            <i class="bi bi-person me-2"></i>User Account Information
+                        </h6>
+                        
+                        <div class="row g-3">
+                            <!-- Username -->
+                            <div class="col-md-6">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">
+                                    Username <span class="text-danger">*</span>
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.username.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    Email Address <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.email.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- First Name -->
+                            <div class="col-md-6">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    First Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Last Name -->
+                            <div class="col-md-6">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    Last Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Phone Number -->
+                            <div class="col-md-6">
+                                <label for="{{ form.phone_number.id_for_label }}" class="form-label">
+                                    Phone Number
+                                </label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.phone_number.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Password fields (only for creation) -->
+                            {% if form.password1 %}
+                                <div class="col-md-6">
+                                    <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                        Password <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.password1 }}
+                                    {% if form.password1.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.password1.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                        Confirm Password <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.password2 }}
+                                    {% if form.password2.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.password2.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Intern Information Section -->
+                    <div class="mb-4">
+                        <h6 class="text-info mb-3">
+                            <i class="bi bi-mortarboard me-2"></i>Intern Profile Information
+                        </h6>
+                        
+                        <div class="row g-3">
+                            <!-- Registration Number -->
+                            <div class="col-md-6">
+                                <label for="{{ form.registration_number.id_for_label }}" class="form-label">
+                                    Registration Number <span class="text-danger">*</span>
+                                </label>
+                                {{ form.registration_number }}
+                                {% if form.registration_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.registration_number.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Unique student registration number</div>
+                            </div>
+                            
+                            <!-- Institution -->
+                            <div class="col-md-6">
+                                <label for="{{ form.institution.id_for_label }}" class="form-label">
+                                    Institution <span class="text-danger">*</span>
+                                </label>
+                                {{ form.institution }}
+                                {% if form.institution.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.institution.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Course of Study -->
+                            <div class="col-md-6">
+                                <label for="{{ form.course_of_study.id_for_label }}" class="form-label">
+                                    Course of Study <span class="text-danger">*</span>
+                                </label>
+                                {{ form.course_of_study }}
+                                {% if form.course_of_study.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.course_of_study.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Field of study or major</div>
+                            </div>
+                            
+                            <!-- Year of Study -->
+                            <div class="col-md-6">
+                                <label for="{{ form.year_of_study.id_for_label }}" class="form-label">
+                                    Year of Study
+                                </label>
+                                {{ form.year_of_study }}
+                                {% if form.year_of_study.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.year_of_study.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Supervisor -->
+                            <div class="col-md-6">
+                                <label for="{{ form.supervisor.id_for_label }}" class="form-label">
+                                    Assigned Supervisor
+                                </label>
+                                {{ form.supervisor }}
+                                {% if form.supervisor.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.supervisor.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Select a supervisor for this intern</div>
+                            </div>
+                            
+                            <!-- Internship Duration -->
+                            <div class="col-md-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                    Start Date <span class="text-danger">*</span>
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.start_date.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label">
+                                    End Date <span class="text-danger">*</span>
+                                </label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.end_date.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Emergency Contact -->
+                            <div class="col-md-6">
+                                <label for="{{ form.emergency_contact_name.id_for_label }}" class="form-label">
+                                    Emergency Contact Name
+                                </label>
+                                {{ form.emergency_contact_name }}
+                                {% if form.emergency_contact_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_contact_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="{{ form.emergency_contact_phone.id_for_label }}" class="form-label">
+                                    Emergency Contact Phone
+                                </label>
+                                {{ form.emergency_contact_phone }}
+                                {% if form.emergency_contact_phone.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_contact_phone.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'accounts:intern_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-info">
+                            <i class="bi bi-check-lg me-2"></i>{{ submit_text }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if intern %}
+            <!-- Additional Info for Existing Intern -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0">Internship Progress</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3 text-center">
+                            <div class="border rounded p-3">
+                                <h4 class="text-primary mb-1">{{ intern.logbook_entries_count }}</h4>
+                                <small class="text-muted">Logbook Entries</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="border rounded p-3">
+                                <h4 class="text-success mb-1">{{ intern.completed_assignments_count }}</h4>
+                                <small class="text-muted">Completed Tasks</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="border rounded p-3">
+                                <h4 class="text-warning mb-1">{{ intern.pending_assignments_count }}</h4>
+                                <small class="text-muted">Pending Tasks</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="border rounded p-3">
+                                <h4 class="text-info mb-1">{{ intern.progress_percentage }}%</h4>
+                                <small class="text-muted">Progress</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">Internship Duration</small>
+                            <small class="text-muted">{{ intern.days_remaining }} days remaining</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-info" role="progressbar" 
+                                 style="width: {{ intern.duration_progress_percentage }}%" 
+                                 aria-valuenow="{{ intern.duration_progress_percentage }}" 
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Created:</strong><br>
+                            <span class="text-muted">{{ intern.created_at|date:"F d, Y g:i A" }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Last Updated:</strong><br>
+                            <span class="text-muted">{{ intern.updated_at|date:"F d, Y g:i A" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add form validation feedback
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.checkValidity()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+    });
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                input.classList.add('is-invalid');
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first invalid field
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+        }
+    });
+    
+    // Auto-generate username from registration number
+    const regNumberField = document.getElementById('id_registration_number');
+    const usernameField = document.getElementById('id_username');
+    
+    if (regNumberField && usernameField && !usernameField.value) {
+        regNumberField.addEventListener('blur', function() {
+            const regNumber = this.value.toLowerCase().trim();
+            if (regNumber) {
+                usernameField.value = regNumber;
+                usernameField.dispatchEvent(new Event('input'));
+            }
+        });
+    }
+    
+    // Date validation
+    const startDateField = document.getElementById('id_start_date');
+    const endDateField = document.getElementById('id_end_date');
+    
+    if (startDateField && endDateField) {
+        function validateDates() {
+            const startDate = new Date(startDateField.value);
+            const endDate = new Date(endDateField.value);
+            
+            if (startDate && endDate && startDate >= endDate) {
+                endDateField.setCustomValidity('End date must be after start date');
+            } else {
+                endDateField.setCustomValidity('');
+            }
+        }
+        
+        startDateField.addEventListener('change', validateDates);
+        endDateField.addEventListener('change', validateDates);
+    }
+});
+</script>
+{% endblock %}

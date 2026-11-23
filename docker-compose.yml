@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:15
+    container_name: internlog_db
+    restart: always
+    environment:
+      POSTGRES_DB: internlogdb
+      POSTGRES_USER: internuser
+      POSTGRES_PASSWORD: 123qwe123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: internlog_web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

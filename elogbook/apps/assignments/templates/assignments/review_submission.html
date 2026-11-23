@@ -1,0 +1,130 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="bi bi-clipboard-check me-2"></i>Review Assignment Submission</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Assignment Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <h5>Assignment Details</h5>
+                                <h6 class="mb-2">{{ assignment.title }}</h6>
+                                <p class="mb-2">{{ assignment.description }}</p>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    <strong>Due:</strong> {{ assignment.deadline|date:"F d, Y g:i A" }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light p-3 rounded">
+                                <h5>Intern Information</h5>
+                                <p class="mb-1"><strong>Name:</strong> {{ assignment.intern.user.get_full_name }}</p>
+                                <p class="mb-1"><strong>Email:</strong> {{ assignment.intern.user.email }}</p>
+                                <p class="mb-1">
+                                    <strong>Status:</strong> 
+                                    <span class="badge bg-info">{{ assignment.get_status_display }}</span>
+                                </p>
+                                {% if submission.submitted_at %}
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>
+                                    <strong>Submitted:</strong> {{ submission.submitted_at|date:"F d, Y g:i A" }}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submission Details -->
+                    {% if submission %}
+                    <div class="mb-4">
+                        <h5>Submission Details</h5>
+                        <div class="bg-light p-3 rounded">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <p class="mb-2">
+                                        <strong>Submitted File:</strong>
+                                        <a href="{% url 'assignments:download_submission_file' assignment.id %}" class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="bi bi-download me-1"></i>Download Submission
+                                        </a>
+                                    </p>
+                                    {% if submission.notes %}
+                                    <p class="mb-0">
+                                        <strong>Intern Notes:</strong><br>
+                                        <em>{{ submission.notes }}</em>
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Review Form -->
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ form.review_decision.label_tag }}
+                            <div class="mt-2">
+                                {% for choice in form.review_decision %}
+                                <div class="form-check">
+                                    {{ choice.tag }}
+                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.review_decision.errors %}
+                                <div class="text-danger small">
+                                    {{ form.review_decision.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.supervisor_feedback.id_for_label }}" class="form-label">
+                                <i class="bi bi-chat-text me-1"></i>Your Feedback *
+                            </label>
+                            {{ form.supervisor_feedback }}
+                            <div class="form-text">
+                                Provide detailed feedback to help the intern improve
+                            </div>
+                            {% if form.supervisor_feedback.errors %}
+                                <div class="text-danger small">
+                                    {{ form.supervisor_feedback.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'assignments:supervisor_dashboard' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle me-1"></i>Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

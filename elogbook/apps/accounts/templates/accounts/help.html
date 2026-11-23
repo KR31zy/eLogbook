@@ -1,0 +1,119 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Help & Support - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">Help & Support</li>
+{% endblock %}
+
+{% block page_title %}Help & Support{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8 mb-4">
+    <div class="card card-modern border-0">
+      <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0"><i class="bi bi-life-preserver me-2"></i>Support Center</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted">Find answers, contact your supervisor, or reach technical support.</p>
+
+        <div class="accordion" id="helpAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="h1">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1">
+                Getting Started
+              </button>
+            </h2>
+            <div id="c1" class="accordion-collapse collapse show" data-bs-parent="#helpAccordion">
+              <div class="accordion-body">
+                <ul class="mb-0">
+                  <li>Use <strong>Quick Actions</strong> on your dashboard to access your logbook, create new entries, submit assignments and generate reports.</li>
+                  <li>Upload weekly logbook entries consistently to stay on track.</li>
+                  <li>Check messages from your supervisor frequently.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="h2">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2">
+                Troubleshooting PDF Downloads
+              </button>
+            </h2>
+            <div id="c2" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+              <div class="accordion-body">
+                <ul class="mb-0">
+                  <li>If PDF download fails, the system will download the original Word file automatically.</li>
+                  <li>Disable pop-up blockers for this site if you see nothing downloading.</li>
+                  <li>Contact support with the date/time and entry week number if the problem persists.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="h3">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3">
+                Per-Week Supervisor Feedback
+              </button>
+            </h2>
+            <div id="c3" class="accordion-collapse collapse" data-bs-parent="#helpAccordion">
+              <div class="accordion-body">
+                Feedback is stored per weekly entry and shown in your Virtual Logbook. If older weeks show empty feedback, it may be pending or not backfilled yet.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4 mb-4">
+    <div class="card card-modern border-0 mb-4">
+      <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Contact</h5>
+      </div>
+      <div class="card-body">
+        {% if supervisor %}
+          <div class="mb-3">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-person-badge fs-2 text-primary me-2"></i>
+              <div>
+                <div class="fw-bold">{{ supervisor.user.get_full_name|default:supervisor.user.username }}</div>
+                {% if supervisor.position %}<div class="text-muted small">{{ supervisor.position }}</div>{% endif %}
+                {% if supervisor.user.email %}<div class="text-muted small">{{ supervisor.user.email }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="d-grid gap-2">
+            <a href="{% url 'notifications:chat' supervisor.user.id %}" class="btn btn-primary btn-sm">
+              <i class="bi bi-chat-dots me-1"></i> Message Supervisor
+            </a>
+            {% if supervisor.user.email %}
+            <a href="mailto:{{ supervisor.user.email }}" class="btn btn-outline-primary btn-sm">
+              <i class="bi bi-envelope me-1"></i> Email Supervisor
+            </a>
+            {% endif %}
+          </div>
+        {% else %}
+          <p class="text-muted">No supervisor assigned yet.</p>
+        {% endif %}
+
+        <hr>
+        <h6 class="fw-bold">Technical Support</h6>
+        <p class="text-muted small">For urgent technical issues, contact support during working hours.</p>
+        <div class="d-grid gap-2">
+          <a href="mailto:support@example.com" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-envelope-at me-1"></i> Email Technical Support
+          </a>
+        </div>
+        <div class="mt-2 text-muted small">
+          <i class="bi bi-clock me-1"></i> Mon–Fri, 9:00–17:00
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

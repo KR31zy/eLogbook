@@ -1,0 +1,46 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Dashboard - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    
+    <!-- Card for Assignment Submission -->
+    <div class="card shadow-sm border-0 rounded-3 mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Submit Assignment</h5>
+      </div>
+      <div class="card-body">
+        <form action="" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- File Upload -->
+          <div class="mb-3">
+            <label for="submissionFile" class="form-label">Upload File <span class="text-danger">*</span></label>
+            <input type="file" class="form-control" id="submissionFile" name="submission_file" required>
+          </div>
+
+          <!-- Comments -->
+          <div class="mb-3">
+            <label for="comments" class="form-label">Comments (optional)</label>
+            <textarea class="form-control" id="comments" name="comments" rows="3" placeholder="Add any notes here..."></textarea>
+          </div>
+
+          <!-- Submit -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">Submit Assignment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+   
+  </div>
+</div>
+{% endblock %}

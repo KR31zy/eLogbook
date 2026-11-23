@@ -1,0 +1,82 @@
+{% extends 'accounts/base.html' %}
+{% block title %}Edit Logbook - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{% url 'logbook:template_list' %}">Logbook Templates</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit Logbook</li>
+{% endblock %}
+
+{% block page_title %}Edit Logbook{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ template.name }}</h5>
+                    <span class="badge bg-{% if student_logbook.status == 'draft' %}secondary{% elif student_logbook.status == 'submitted' %}warning{% elif student_logbook.status == 'approved' %}success{% else %}danger{% endif %}">
+                        {{ student_logbook.status|title }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-file-earmark-word me-1"></i> Upload Completed Logbook (.docx)</label>
+                        <input type="file" class="form-control" name="word_file" accept=".docx" required>
+                        <div class="form-text text-muted">Upload your completed logbook document in Microsoft Word format.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-cloud-upload me-1"></i> Upload Logbook
+                    </button>
+                </form>
+
+                <div class="row mt-4">
+                    {% if student_logbook.word_file %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="bi bi-file-earmark-word me-1"></i> Uploaded Document</h6>
+                                <p class="text-muted small mb-3">Last updated: {{ student_logbook.updated_at|date:"M d, Y H:i" }}</p>
+                                <a href="{{ student_logbook.word_file.url }}" class="btn btn-outline-primary btn-sm" download>
+                                    <i class="bi bi-download me-1"></i> Download Word Document
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if student_logbook.pdf_file %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="bi bi-file-earmark-pdf me-1"></i> Confirmation File</h6>
+                                <p class="text-muted small mb-3">PDF confirmation of your submission</p>
+                                <a href="{% url 'logbook:convert_to_pdf' student_logbook.id %}" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-download me-1"></i> Download Confirmation
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    {% if student_logbook.word_file and student_logbook.status == 'draft' %}
+                    <a href="{% url 'logbook:submit_logbook' student_logbook.id %}" class="btn btn-warning">
+                        <i class="bi bi-send me-1"></i> Submit for Review
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'logbook:template_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Templates
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

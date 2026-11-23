@@ -1,0 +1,50 @@
+# Python/Django
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+.DS_Store
+.venv/
+.env
+# 
+Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+
+# Django
+db.sqlite3
+*.log
+*.pot
+*.pyc
+local_settings.py
+
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+.env.*
+
+# Django static and media (future-proofing)
+staticfiles/
+media/
+
+# Docker
+*.pid
+*.seed
+*.bak
+*.swp
+*~
+/postgres_data/
+
+# VSCode / IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+

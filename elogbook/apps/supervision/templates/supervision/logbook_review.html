@@ -1,0 +1,50 @@
+{% extends 'supervision/base.html' %}
+{% block title %}Review Logbook - E-Logbook{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'supervision:dashboard' %}">Supervisor</a></li>
+<li class="breadcrumb-item"><a href="{% url 'supervision:logbooks' %}">Logbooks</a></li>
+<li class="breadcrumb-item active" aria-current="page">Review</li>
+{% endblock %}
+
+{% block page_title %}Review Logbook{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card card-modern border-0">
+            <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ logbook.template.name }}</h5>
+                    <span class="badge bg-secondary">{{ logbook.status|capfirst }}</span>
+                </div>
+                <p class="text-muted mb-0">Submitted by {{ logbook.student.get_full_name|default:logbook.student.username }}{% if logbook.submitted_at %} on {{ logbook.submitted_at|date:"M d, Y" }}{% endif %}</p>
+            </div>
+            <div class="card-body">
+                {% if logbook.word_file %}
+                <p class="mb-1"><a class="btn btn-sm btn-outline-primary" href="{{ logbook.word_file.url }}" target="_blank"><i class="bi bi-download me-1"></i>Download Word</a></p>
+                {% endif %}
+                {% if logbook.pdf_file %}
+                <p class="mb-3"><a class="btn btn-sm btn-outline-primary" href="{{ logbook.pdf_file.url }}" target="_blank"><i class="bi bi-download me-1"></i>Download PDF</a></p>
+                {% endif %}
+
+                <form method="post" class="mt-2">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="feedback" class="form-label fw-bold">Supervisor Feedback</label>
+                        <textarea name="feedback" id="feedback" rows="4" class="form-control">{{ logbook.supervisor_feedback }}</textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button name="action" value="approve" class="btn btn-primary" type="submit">
+                            <i class="bi bi-check-circle me-1"></i> Approve
+                        </button>
+                        <button name="action" value="reject" class="btn btn-outline-danger" type="submit">
+                            <i class="bi bi-x-circle me-1"></i> Request Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

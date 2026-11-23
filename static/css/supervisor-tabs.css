@@ -1,0 +1,149 @@
+/**
+ * Supervisor Dashboard Tab Styling
+ * Enhances the tab functionality with visual feedback and accessibility features
+ */
+
+/* Make tabbable elements have a visible focus indicator */
+.sidebar .nav-link:focus,
+.card-header[tabindex="0"]:focus,
+.tab-button:focus {
+    outline: 2px solid #6f42c1;
+    outline-offset: -2px;
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+}
+
+/* Active tab styling */
+.sidebar .nav-link.active {
+    background-color: #e9f0ff;
+    color: #6f42c1;
+    border-left: 3px solid #6f42c1;
+    font-weight: 500;
+}
+
+/* Hover effects for better user feedback */
+.sidebar .nav-link:hover {
+    background-color: #f8f9fc;
+    color: #5a32a3;
+    border-left: 3px solid #5a32a3;
+}
+
+/* Card headers that act as tabs */
+.card-header[tabindex="0"] {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.card-header[tabindex="0"]:hover {
+    background-color: #f8f9fc !important;
+}
+
+.card-header[tabindex="0"][aria-expanded="true"] {
+    border-bottom: 2px solid #6f42c1;
+}
+
+/* Accessibility - Add visual cue for keyboard users */
+.sidebar .nav-link:focus-visible,
+.card-header[tabindex="0"]:focus-visible,
+.tab-button:focus-visible {
+    outline: 2px solid #6f42c1;
+    outline-offset: -2px;
+}
+
+/* Add a subtle indicator for tabbable elements */
+.sidebar .nav-link,
+.card-header[tabindex="0"] {
+    position: relative;
+}
+
+.sidebar .nav-link::after,
+.card-header[tabindex="0"]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #6f42c1;
+    transition: width 0.3s ease;
+}
+
+.sidebar .nav-link:hover::after,
+.card-header[tabindex="0"]:hover::after {
+    width: 100%;
+}
+
+/* Tab Navigation Styling */
+.tab-nav {
+    display: flex;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.tab-button {
+    color: #495057;
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.tab-button:hover {
+    color: #6f42c1;
+    border-bottom-color: #6f42c1;
+}
+
+.tab-button.active {
+    color: #6f42c1;
+    border-bottom: 2px solid #6f42c1;
+}
+
+/* Ensure tab content is properly styled */
+.card-header {
+    background-color: #fff;
+    border-bottom: none;
+}
+
+/* Make sure tab content has proper spacing */
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Dashboard-specific tab styling */
+.dashboard-tabs {
+    display: flex;
+    border-bottom: 2px solid #e9ecef;
+    padding: 0;
+    margin: 1rem 1rem 0;
+}
+
+.dashboard-tab {
+    background: none;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    margin-right: 0.5rem;
+    color: #495057;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.dashboard-tab:hover {
+    color: #6f42c1;
+    border-bottom-color: #6f42c1;
+}
+
+.dashboard-tab.active {
+    color: #6f42c1;
+    border-bottom-color: #6f42c1;
+    font-weight: 600;
+}
+
+.dashboard-tab:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+}
